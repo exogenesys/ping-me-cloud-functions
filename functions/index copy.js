@@ -111,24 +111,9 @@ exports.createUserDocument = functions.auth.user().onCreate((user) => {
 });
 
 
-exports.pingUsersDaily = functions.pubsub
-  .schedule('5 * * * *') // EVERY DAY AT 10:05
-  .timeZone('Asia/Kolkata')
+exports.pingUsers = functions.pubsub
+  .schedule('5 * * * *')
+  .timeZone('Pacific/Auckland')
   .onRun(context => {
     console.log('triggered every 5 minutes', context);
 });
-
-exports.pingUsersWeekly = functions.pubsub
-  .schedule('5 10 * * 0') // EVERY WEEK AT 10:05
-  .timeZone('Asia/Kolkata')
-  .onRun(context => {
-    console.log('triggered every 5 minutes', context);
-});
-
-exports.pingUsersMonthly = functions.pubsub
-  .schedule('5 10 1 * *') // EVERY MONTH AT 10:05
-  .timeZone('Asia/Kolkata')
-  .onRun(context => {
-    console.log('triggered every 5 minutes', context);
-});
-
