@@ -1,7 +1,10 @@
 const functions = require('firebase-functions');
 const firebase = require("firebase-admin");
-
 const serviceAccount = require("./serviceAccountKeys/firebase-adminsdk.json");
+const mailJetConstants = require("./serviceAccountKeys/mailjet.json");
+
+const mailjet = require("node-mailjet").connect(mailJetConstants.username, mailJetConstants.secret)
+
 
 firebase.initializeApp({
     credential: firebase.credential.cert(serviceAccount),
@@ -33,6 +36,9 @@ exports.subscribeTo = functions.https.onCall((data, context) => {
     // [START authIntegration]
     // Authentication / user information is automatically added to the request.
     const uid = context.auth.uid;
+    const email = context.auth.token.email || null;
+    const name = context.auth.token.name || null;
+
     // [END authIntegration]
 
     const channelRef = db.collection('channels').doc(channelId);
@@ -45,13 +51,36 @@ exports.subscribeTo = functions.https.onCall((data, context) => {
     const channelUnion = userRef.update({
         subscriptions: firebase.firestore.FieldValue.arrayUnion(channelId)
     })
+
+    const subscriptionEmail = mailjet.post("send", {'version': 'v3.1'}).request({
+        "Messages":[
+                {
+                        "From": {
+                                "Email": mailJetConstants.senderEmail || 'support@pingme.cf',
+                                "Name": "Sam"
+                        },
+                        "To": [
+                                {
+                                        "Email": email || 'hrshgtm9@gmail.com',
+                                        "Name": name || 'Error Singh'
+                                }
+                        ],
+                        "Subject": "Never Miss the Events at Pragati Madain again!",
+                        "TextPart": "Hey, " + name || '' + "! You have subscribed to Events at Pragati Maidan. You will never anything that happens over there again. Please, reply to this email for any query. Thank you! :)"
+                        // "HTMLPart": "<h3>Dear passenger 1, welcome to <a href=\"https://www.mailjet.com/\">Mailjet</a>!</h3><br />May the delivery force be with you!"
+                }
+        ]
+    })
     
-    return Promise.all([subscribersUnion, channelUnion]).then(res => {
+    return Promise.all([subscribersUnion, channelUnion, subscriptionEmail]).then(res => {
         console.log('subscribing to: ', res);
         return { 
             channelId: channelId, error: false, message: 'subscribed'
         };
-    });
+    }).catch((err) => {
+        console.log(err)
+    })
+;
 
 
 });
@@ -111,24 +140,18 @@ exports.createUserDocument = functions.auth.user().onCreate((user) => {
 });
 
 
-exports.pingUsersDaily = functions.pubsub
-  .schedule('5 * * * *') // EVERY DAY AT 10:05
-  .timeZone('Asia/Kolkata')
-  .onRun(context => {
-    console.log('triggered every 5 minutes', context);
+exports.pingUsersDaily = functions.https.onRequest((req, res) => {
+    console.log('triggered every 5 minutes', req.body);
+    res.status(200).send({'success': true});
 });
 
-exports.pingUsersWeekly = functions.pubsub
-  .schedule('5 10 * * 0') // EVERY WEEK AT 10:05
-  .timeZone('Asia/Kolkata')
-  .onRun(context => {
-    console.log('triggered every 5 minutes', context);
+exports.pingUsersWeekly = functions.https.onRequest((req, res) => {
+    console.log('triggered every 5 minutes', req.body);
+    res.status(200).send({'success': true});
 });
 
-exports.pingUsersMonthly = functions.pubsub
-  .schedule('5 10 1 * *') // EVERY MONTH AT 10:05
-  .timeZone('Asia/Kolkata')
-  .onRun(context => {
-    console.log('triggered every 5 minutes', context);
+exports.pingUsersMonthly = functions.https.onRequest((req, res) => {
+    console.log('triggered every 5 minutes', req.body);
+    res.status(200).send({'success': true});
 });
 
