@@ -1,6 +1,6 @@
 {
-  "name": "functions",
-  "description": "Cloud Functions for Firebase",
+  "name": "ping-me-cloud-functions",
+  "description": "Cloud Functions for Ping Me",
   "scripts": {
     "lint": "eslint .",
     "serve": "firebase serve --only functions",

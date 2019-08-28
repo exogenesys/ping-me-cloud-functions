@@ -209,18 +209,41 @@ exports.createUserDocument = functions.auth.user().onCreate((user) => {
 });
 
 
-exports.pingUsersDaily = functions.https.onRequest((req, res) => {
-    console.log('triggered every 5 minutes', req.body);
-    res.status(200).send({'success': true});
+exports.pingUsersDaily = functions.pubsub
+.schedule('20 10 * * *')
+.timeZone('Asia/Kolkata')
+.onRun((context) => {
+    console.log('triggered every day @ 10:20 AM');
+    return null;
 });
 
-exports.pingUsersWeekly = functions.https.onRequest((req, res) => {
-    console.log('triggered every 5 minutes', req.body);
-    res.status(200).send({'success': true});
+exports.pingUsersWeekly = functions.pubsub
+.schedule('15 10 * * 1')
+.timeZone('Asia/Kolkata')
+.onRun((context) => {
+    console.log('triggered every week @ 10:15 AM');
+    return null;
 });
 
-exports.pingUsersMonthly = functions.https.onRequest((req, res) => {
-    console.log('triggered every 5 minutes', req.body);
-    res.status(200).send({'success': true});
+exports.pingUsersMonthly = functions.pubsub
+.schedule('10 10 1 * *')
+.timeZone('Asia/Kolkata')
+.onRun((context) => {
+    console.log('triggered every month @ 10:10 AM');
+    return null;
 });
 
+// exports.pingUsersDaily = functions.https.onRequest((req, res) => {
+//     console.log('triggered every 5 minutes', req.body);
+//     res.status(200).send({'success': true});
+// });
+
+// exports.pingUsersWeekly = functions.https.onRequest((req, res) => {
+//     console.log('triggered every 5 minutes', req.body);
+//     res.status(200).send({'success': true});
+// });
+
+// exports.pingUsersMonthly = functions.https.onRequest((req, res) => {
+//     console.log('triggered every 5 minutes', req.body);
+//     res.status(200).send({'success': true});
+// });
