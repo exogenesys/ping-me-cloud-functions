@@ -62,7 +62,7 @@ exports.subscribeTo = functions.https.onCall((data, context) => {
                     }
                 ],
                 "Subject": "Never Miss the Events at Pragati Madain again!",
-                "HTMLPart": emailBody.html || "Please reply to this email if you with the text \'Empty E-Mail\' if you see this. Thanks for helping me fix bugs! :)"
+                "HTMLPart": emailBody.html || "Please reply to this email if you with the text 'Empty E-Mail' if you see this. Thanks for helping me fix bugs! :)"
             }
         ]
     })
@@ -75,7 +75,7 @@ exports.subscribeTo = functions.https.onCall((data, context) => {
     }).catch((err) => {
         console.log(err)
     });
-    
+
 });
 
 exports.getSubscriptionData = functions.https.onCall((data, context) => {
