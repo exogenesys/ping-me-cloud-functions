@@ -4,7 +4,7 @@ const serviceAccount = require("./serviceAccountKeys/firebase-adminsdk.json");
 const mailJetConstants = require("./serviceAccountKeys/mailjet.json");
 
 const mailjet = require("node-mailjet").connect(mailJetConstants.username, mailJetConstants.secret)
-
+const mailBody = require("./mail");
 
 firebase.initializeApp({
     credential: firebase.credential.cert(serviceAccount),
@@ -41,15 +41,11 @@ exports.subscribeTo = functions.https.onCall((data, context) => {
     
     // [END authIntegration]
     
-    const channelRef = db.collection('channels').doc(channelId);
+    // const channelRef = db.collection('channels').doc(channelId);
     const userRef = db.collection('users').doc(uid);
     
     const subscribersUnion = channelRef.update({
         subscribers: firebase.firestore.FieldValue.arrayUnion(uid)
-    })
-    
-    const channelUnion = userRef.update({
-        subscriptions: firebase.firestore.FieldValue.arrayUnion(channelId)
     })
     
     const subscriptionEmail = mailjet.post("send", {'version': 'v3.1'}).request({
@@ -57,7 +53,7 @@ exports.subscribeTo = functions.https.onCall((data, context) => {
             {
                 "From": {
                     "Email": mailJetConstants.senderEmail || 'support@pingme.cf',
-                    "Name": "Sam"
+                    "Name": "Harsh Gautam"
                 },
                 "To": [
                     {
@@ -66,22 +62,19 @@ exports.subscribeTo = functions.https.onCall((data, context) => {
                     }
                 ],
                 "Subject": "Never Miss the Events at Pragati Madain again!",
-                "TextPart": "Hey, " + name || 'Friend' + "! You have subscribed to Events at Pragati Maidan. You will never anything that happens over there again. Please, reply to this email for any query. Thank you! :)"
-                // "HTMLPart": "<h3>Dear passenger 1, welcome to <a href=\"https://www.mailjet.com/\">Mailjet</a>!</h3><br />May the delivery force be with you!"
+                "HTMLPart": emailBody.html || "Please reply to this email if you with the text \'Empty E-Mail\' if you see this. Thanks for helping me fix bugs! :)"
             }
         ]
     })
     
-    return Promise.all([subscribersUnion, channelUnion, subscriptionEmail]).then(res => {
+    return Promise.all([subscribersUnion, subscriptionEmail]).then(res => {
         console.log('subscribing to: ', res);
         return { 
             channelId: channelId, error: false, message: 'subscribed'
         };
     }).catch((err) => {
         console.log(err)
-    })
-    ;
-    
+    });
     
 });
 
@@ -111,14 +104,14 @@ exports.getSubscriptionData = functions.https.onCall((data, context) => {
     
     // [END authIntegration]
     
-    const channelRef = db.collection('channels').doc(channelId);
-    
-    const isUserSubscribed = channelRef.get().then(doc => {
+    const userRef = db.collection('users').doc(uid);
+
+    const isUserSubscribed = userRef.get().then(doc => {
         if (!doc.exists) {
             return 'invalid channel'
         } else {
-            if(doc.data().subscribers.some(subscriber => {
-                return (JSON.stringify(subscriber) === JSON.stringify(uid))
+            if(doc.data().subscriptions.some(subscription => {
+                return (JSON.stringify(subscription) === JSON.stringify(channelId))
             })){
                 return 'subscribed'
             } else {
@@ -126,7 +119,7 @@ exports.getSubscriptionData = functions.https.onCall((data, context) => {
             }
         }
     })
-    
+
     return Promise.all([isUserSubscribed]).then(res => {
         console.log('subscribing to: ', res);
         switch (res[0]) {
@@ -178,18 +171,18 @@ exports.unSubscribeTo = functions.https.onCall((data, context) => {
     const uid = context.auth.uid;
     // [END authIntegration]
     
-    const channelRef = db.collection('channels').doc(channelId);
+    // const channelRef = db.collection('channels').doc(channelId);
     const userRef = db.collection('users').doc(uid);
     
-    const subscribersRm = channelRef.update({
-        subscribers: firebase.firestore.FieldValue.arrayRemove(uid)
-    })
+    // const subscribersRm = channelRef.update({
+    //     subscribers: firebase.firestore.FieldValue.arrayRemove(uid)
+    // })
     
     const channelRm = userRef.update({
         subscriptions: firebase.firestore.FieldValue.arrayRemove(channelId)
     })
     
-    return Promise.all([subscribersRm, channelRm]).then(res => {
+    return Promise.all([channelRm]).then(res => {
         console.log('unsubscribing to: ', res);
         return { 
             channelId: channelId, error: false, message: 'unsubscribed' 
