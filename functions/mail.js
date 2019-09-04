@@ -27,19 +27,19 @@ const rows = json.map(row => {
 
   return `
   <tr style="border-bottom:1px solid #ecedee;text-align:left;padding:15px 0;vertical-align: top;">
-    <td width="30%" style="padding: 8px;">
+    <td width="30%" style="padding: 5px;">
       <a
       href="${row.link}">
         ${row.name}
       </a>
     </td>
-    <td width="20%" style="padding: 8px;">
+    <td width="20%" style="padding: 5px;">
       ${row.industry}
     </td>
-    <td width="10%" style="padding: 8px;">
+    <td width="15%" style="padding: 5px;">
       ${startDate}
     </td>
-    <td width="10%" style="padding: 8px;">
+    <td width="15%" style="padding: 5px;">
       ${endDate}
     </td>
   </tr>
@@ -67,10 +67,10 @@ const htmlOutput = mjml2html(`
       <mj-column>
         <mj-table>
           <tr style="border-bottom:1px solid #ecedee;text-align:left;padding:15px 0;vertical-align: bottom;">
-            <th style="padding: 8px;">Name</th>
-            <th style="padding: 8px;">Industry</th>
-            <th style="padding: 8px;">Start Date</th>
-            <th style="padding: 8px;">End Date</th>
+            <th style="padding: 5px;">Name</th>
+            <th style="padding: 5px;">Industry</th>
+            <th style="padding: 5px;">Start Date</th>
+            <th style="padding: 5px;">End Date</th>
           </tr>
           ${rows}
         </mj-table>      

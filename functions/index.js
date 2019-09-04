@@ -43,9 +43,9 @@ exports.subscribeTo = functions.https.onCall((data, context) => {
     
     // const channelRef = db.collection('channels').doc(channelId);
     const userRef = db.collection('users').doc(uid);
-    
-    const subscribersUnion = channelRef.update({
-        subscribers: firebase.firestore.FieldValue.arrayUnion(uid)
+
+    const channelUnion = userRef.update({
+        subscriptions: firebase.firestore.FieldValue.arrayUnion(channelId)
     })
     
     const subscriptionEmail = mailjet.post("send", {'version': 'v3.1'}).request({
@@ -67,7 +67,7 @@ exports.subscribeTo = functions.https.onCall((data, context) => {
         ]
     })
     
-    return Promise.all([subscribersUnion, subscriptionEmail]).then(res => {
+    return Promise.all([channelUnion, subscriptionEmail]).then(res => {
         console.log('subscribing to: ', res);
         return { 
             channelId: channelId, error: false, message: 'subscribed'
